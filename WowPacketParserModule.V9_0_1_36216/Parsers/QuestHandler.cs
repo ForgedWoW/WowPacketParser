@@ -704,10 +704,18 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
                 else
                     packet.ReadTime("LastUpdate", i);
 
-                packet.ReadUInt32<QuestId>("QuestID", i);
-                packet.ReadUInt32("Timer", i);
-                packet.ReadInt32("VariableID", i);
-                packet.ReadInt32("Value", i);
+                var questID = packet.ReadUInt32<QuestId>("QuestID", i);
+                var timer = packet.ReadUInt32("Timer", i);
+                var variableID = packet.ReadInt32("VariableID", i);
+                var value = packet.ReadInt32("Value", i);
+                WorldQuest worldQuest = new WorldQuest
+                {
+                    id = (uint)questID,
+                    duration = (uint)timer,
+                    variable = (int)variableID,
+                    value = (int)value,
+                };
+                Storage.WorldQuests.Add(worldQuest, packet.TimeSpan);
             }
         }
 
@@ -725,6 +733,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
             }
             else
                 packet.ReadByteE<QuestPushReason>("Result");
+        }
+
+        [Parser(Opcode.SMSG_SHOW_QUEST_COMPLETION_TEXT)]
+        public static void HandleShowQuestCompletionText(Packet packet)
+        {
+            packet.ReadBit("ShowQuestComplete");
         }
     }
 }

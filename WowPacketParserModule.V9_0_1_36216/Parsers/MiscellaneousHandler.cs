@@ -269,5 +269,12 @@ namespace WowPacketParserModule.V9_0_1_36216.Parsers
 
             Storage.Sounds.Add(sound, packet.TimeSpan);
         }
+       
+        [Parser(Opcode.CMSG_ACTIVATE_SOULBIND, ClientVersionBuild.V9_0_5_37503)]
+        public static void HandleActivateSoubind(Packet packet)
+        {
+            packet.ReadInt32("CovenantID");
+        }
+
     }
 }

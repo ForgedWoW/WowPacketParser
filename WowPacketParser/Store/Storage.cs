@@ -144,6 +144,10 @@ namespace WowPacketParser.Store
         public static readonly DataBag<PlayerChoiceResponseRewardFactionTemplate> PlayerChoiceResponseRewardFactions = new DataBag<PlayerChoiceResponseRewardFactionTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
         public static readonly DataBag<PlayerChoiceResponseRewardItemTemplate> PlayerChoiceResponseRewardItems = new DataBag<PlayerChoiceResponseRewardItemTemplate>(new List<SQLOutput> { SQLOutput.playerchoice });
 
+        // WorldQuest
+        public static readonly DataBag<WorldQuest> WorldQuests = new DataBag<WorldQuest>(new List<SQLOutput> { SQLOutput.worldquest });
+        public static readonly DataBag<WorldQuestReward> WorldQuestRewards = new DataBag<WorldQuestReward>(new List<SQLOutput> { SQLOutput.worldquest });
+
         // Hotfixes
         public static readonly DataBag<AchievementHotfix1000> AchievementHotfixes1000 = new DataBag<AchievementHotfix1000>(new List<SQLOutput> { SQLOutput.hotfixes });
         public static readonly DataBag<AchievementCategoryHotfix1000> AchievementCategoryHotfixes1000 = new DataBag<AchievementCategoryHotfix1000>(new List<SQLOutput> { SQLOutput.hotfixes });
@@ -675,6 +679,7 @@ namespace WowPacketParser.Store
             PlayerChoiceResponseRewardFactions.Clear();
             PlayerChoiceResponseRewardItems.Clear();
 
+            WorldQuests.Clear();
             AchievementHotfixes1000.Clear();
             AchievementCategoryHotfixes1000.Clear();
             AdventureJournalHotfixes1000.Clear();

@@ -946,7 +946,14 @@ namespace WowPacketParser.SQL.Builders
                 }
             }
 
-            return new SQLInsert<NpcSpellClick>(rows, false).Build();
+            StringBuilder result = new StringBuilder();
+            var delete = new SQLDelete<NpcSpellClick>(rows);
+            result.Append(delete.Build());
+
+            var insert = new SQLInsert<NpcSpellClick>(rows, false);
+            result.Append(insert.Build());
+
+            return result.ToString();
         }
 
         [BuilderMethod(Units = true)]

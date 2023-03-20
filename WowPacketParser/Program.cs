@@ -120,7 +120,7 @@ namespace WowPacketParser
                     {
                         file.WriteLine($"   {map.Key}:");
 
-                        foreach (var code in map.Value)
+                        foreach (var code in map.Value.OrderBy(n => n))
                         {
                             file.WriteLine($"       {code}");
                         }

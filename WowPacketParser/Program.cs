@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
+using Org.BouncyCastle.Bcpg;
+using WowPacketParser.Enums;
 using WowPacketParser.Loading;
 using WowPacketParser.Misc;
 using WowPacketParser.Parsing.Parsers;
@@ -60,6 +64,9 @@ namespace WowPacketParser
 
             var processStartTime = DateTime.Now;
             var count = 0;
+
+            Dictionary<string, Dictionary<Direction, HashSet<string>>> opcodeMappings = new();
+
             foreach (var file in files)
             {
                 SessionHandler.ZStreams.Clear();
@@ -72,6 +79,24 @@ namespace WowPacketParser
                 {
                     var sf = new SniffFile(file, Settings.DumpFormat, Tuple.Create(++count, files.Count));
                     sf.ProcessFile();
+
+                    foreach (var opcodeMapping in sf.OpcodeMappings)
+                    {
+                        foreach (var map in opcodeMapping.Value)
+                        {
+                            if (!opcodeMappings.TryGetValue(opcodeMapping.Key, out var direc))
+                            {
+                                direc = new Dictionary<Direction, HashSet<string>>();
+                                opcodeMappings.Add(opcodeMapping.Key, direc);
+                            }
+
+                            if (!direc.TryGetValue(map.Key, out var dir))
+                            {
+                                dir = map.Value;
+                                direc.Add(map.Key, dir);
+                            }
+                        }
+                    }
                 }
                 catch (IOException ex)
                 {
@@ -84,6 +109,24 @@ namespace WowPacketParser
 
             var processTime = DateTime.Now.Subtract(processStartTime);
             Trace.WriteLine($"Processing {files.Count} sniffs took { processTime.ToFormattedString() }.");
+
+            using (var file = new StreamWriter($"opcode_mappings_{DateTime.Now.ToString("mmddyyyyHHmmss")}.txt"))
+            {
+                foreach (var opcodeMapping in opcodeMappings)
+                {
+                    file.WriteLine(opcodeMapping.Key);
+
+                    foreach (var map in opcodeMapping.Value)
+                    {
+                        file.WriteLine($"   {map.Key}:");
+
+                        foreach (var code in map.Value)
+                        {
+                            file.WriteLine($"       {code}");
+                        }
+                    }
+                }
+            }
 
             SQLConnector.Disconnect();
             SSHTunnel.Disconnect();

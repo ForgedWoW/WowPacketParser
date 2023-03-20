@@ -35,6 +35,7 @@ namespace WowPacketParser.Loading
         private readonly List<string> _withErrorHeaders = new List<string>();
         private readonly List<string> _skippedHeaders = new List<string>();
         private readonly List<string> _noStructureHeaders = new List<string>();
+        public Dictionary<string, Dictionary<Direction, HashSet<string>>> OpcodeMappings = new();
 
         public SniffFile(string fileName, DumpFormatType dumpFormat = DumpFormatType.Text, Tuple<int, int> number = null)
         {
@@ -214,9 +215,33 @@ namespace WowPacketParser.Loading
                             // Parse the packet, adding text to Writer and stuff to the stores
                             if (packet.Direction == Direction.BNClientToServer ||
                                 packet.Direction == Direction.BNServerToClient)
+                            {
                                 BattlenetHandler.ParseBattlenet(packet);
+                            }
                             else
+                            {
+                                lock (OpcodeMappings)
+                                {
+                                    var serverType = packet.ConnectionIndex == 0 ? "Realm" : "Map";
+
+                                    if (!OpcodeMappings.TryGetValue(serverType, out var direc))
+                                    {
+                                        direc = new Dictionary<Direction, HashSet<string>>();
+                                        OpcodeMappings.Add(serverType, direc);
+                                    }
+
+                                    if (!direc.TryGetValue(packet.Direction, out var dir))
+                                    {
+                                        dir = new HashSet<string>();
+                                        direc.Add(packet.Direction, dir);
+                                    }
+
+                                    Opcode code = Opcodes.GetOpcode(packet.Opcode, packet.Direction);
+                                    dir.Add(Enum.GetName(typeof(Opcode), code));  
+                                }
+
                                 Handler.Parse(packet);
+                            }
 
                             // Update statistics
                             _stats.AddByStatus(packet.Status);

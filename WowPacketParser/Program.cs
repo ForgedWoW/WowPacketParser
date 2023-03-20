@@ -95,6 +95,10 @@ namespace WowPacketParser
                                 dir = map.Value;
                                 direc.Add(map.Key, dir);
                             }
+                            else
+                            {
+                                dir.UnionWith(map.Value);
+                            }
                         }
                     }
                 }

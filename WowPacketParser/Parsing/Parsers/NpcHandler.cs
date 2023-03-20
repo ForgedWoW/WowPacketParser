@@ -55,7 +55,11 @@ namespace WowPacketParser.Parsing.Parsers
         {
             if (LastGossipOption.HasSelection)
                 if (!checkDelay || (timeSpan - LastGossipOption.TimeSpan).Duration() <= TimeSpan.FromMilliseconds(2500))
-                    Storage.GossipMenuOptions[(LastGossipOption.MenuId, LastGossipOption.OptionIndex)].Item1.GossipNpcOptionID = gossipNpcOptionId;
+                {
+                    var option = Storage.GossipMenuOptions[(LastGossipOption.MenuId, LastGossipOption.OptionIndex)];
+                        if (option != null && option.Item1 != null)
+                            option.Item1.GossipNpcOptionID = gossipNpcOptionId;
+                }
 
             LastGossipOption.Reset();
             TempGossipOptionPOI.Reset();

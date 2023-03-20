@@ -114,6 +114,23 @@ namespace WowPacketParser
             var processTime = DateTime.Now.Subtract(processStartTime);
             Trace.WriteLine($"Processing {files.Count} sniffs took { processTime.ToFormattedString() }.");
 
+            // "Realm" : "Map"
+
+            if (opcodeMappings.TryGetValue("Realm", out var realmDict) && opcodeMappings.TryGetValue("Map", out var mapDict))
+            {
+                var clientToserverCommon = mapDict[Direction.ClientToServer].ToHashSet();
+                clientToserverCommon.IntersectWith(realmDict[Direction.ClientToServer]);
+
+                var serverToClientCommon = mapDict[Direction.ServerToClient].ToHashSet();
+                serverToClientCommon.IntersectWith(realmDict[Direction.ServerToClient]);
+
+                opcodeMappings.Add("Common", new Dictionary<Direction, HashSet<string>>
+                {
+                    { Direction.ClientToServer, clientToserverCommon },
+                    { Direction.ServerToClient, serverToClientCommon }
+                });
+            }
+
             using (var file = new StreamWriter($"opcode_mappings_{DateTime.Now.ToString("mmddyyyyHHmmss")}.txt"))
             {
                 foreach (var opcodeMapping in opcodeMappings)
